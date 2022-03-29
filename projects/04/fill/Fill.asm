@@ -11,66 +11,72 @@
 // "white" in every pixel;
 // the screen should remain fully clear as long as no key is pressed.
 
-// Width
-    @512
+    @1
     D=A
     @R0
-    M=D
-// Height
-    @256
+    M=D // stride, i.e. memory blocks per row
+
+    @8192
     D=A
     @R1
-    M=D
-  
-    @5000
-    D=A
-    @R2
-    M=D // pixels in total
-    
-    @R3
-    M=0 // current pixel
-//    @R4
-//    M=0 // current row
-//    @R5
-//    M=0 // strides taken, with each stride being 32
+    M=D // memory blocks in total
 
+    @R3
+    M=0 // color
+
+    @R4
+    M=0 // tmp address holder for screen
+
+(START)
+
+    @R2
+    M=0 // idx
 
 (LOOP)
-// calculate how many pixels left
-    //@R2
-    //D=M
-    //@R3
-    //D=M-D
-// exit if all pixels have been drawn
-    //@END
-    //D;JEQ
 
-    @col
-    M=0
-
-(BEGINCOL)
-// iterate over columns in single memory unit
-    @R3
-    D=M
+// determine if we are at end of loop and start over
     @R2
-    D=A-D
+    D=M
+    @R1
+    D=M-D
 
-    @ENDCOL
+    @START
     D;JEQ
 
-    @col
+
+// Draw color to screen
+    @R2 // get idx
     D=M
+    @SCREEN // compute offset
+    D=A+D
+    @R4 // save address temporarily
+    M=D
+    @R3 // fetch color, i.e. b or w
+    D=M
+    @R4 // write color
+    A=M
+    M=D
 
-    @SCREEN
-    A=A+D
-    M=1
+    @R0 // increment idx
+    D=M
+    @R2
+    M=M+D
 
+    @KBD
+    D=M
+    @BLACK
+    D;JGT
+
+(WHITE)
     @R3
-    M=M+1
+    M=0
 
-    @BEGINCOL
+    @LOOP
     0;JMP
 
-(ENDCOL)
+(BLACK)
+    @R3
+    M=-1
 
-(END)
+    @LOOP
+    0;JMP
