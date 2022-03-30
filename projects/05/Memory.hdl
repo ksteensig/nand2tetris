@@ -27,5 +27,45 @@ CHIP Memory {
     OUT out[16];
 
     PARTS:
-    // Put your code here:
+
+// check if larger address than 0x6000 (-0x6001 is 1001 1111 1111 1111)
+// address + (-0x6001), out[15]=0 implies larger
+    Add16(a[0..14]=address, a[15]=false,
+          b[0..12]=true, b[13..14]=false, b[15]=true,
+          out[15]=o6000);
+
+// check if larger address than 0x5FFF (-0x6000 is 1010 0000 0000 0000)
+// address + (-0x6000), out[15]=0 implies larger
+    Add16(a[0..14]=address, a[15]=false,
+          b[0..12]=false, b[13]=true, b[14]=false, b[15]=true,
+          out[15]=o5FFF);
+
+// check if larger address than 0x3FFF (-0x4000 is 1100 0000 0000 0000)\
+// address + (-0x4000), out[15]=0 implies larger
+    Add16(a[0..14]=address, a[15]=false,
+          b[0..13]=false, b[14..15]=true,
+          out[0..12]=saddr, out[15]=o3FFF); // saddr is relative memory address
+
+// 16K memory is addressed using 14 bits
+    And16(a[0..14]=address, a[15]=false, b[0..15]=true, out[0..13]=maddr);
+
+// 0 0 0 = invalid
+// 0 0 1 = impossible
+// 0 1 0 = impossible
+// 0 1 1 = impossible
+// 1 0 0 = keyboard
+// 1 0 1 = impossible
+// 1 1 0 = screen
+// 1 1 1 = memory
+    DMux8Way(in=load, sel[0]=o3FFF, sel[1]=o5FFF, sel[2]=o6000, 
+             a=invalid, b=impossible1, c=impossible2, d=impossible3,
+             e=kbdload, f=impossible4, g=screenload, h=memload);
+
+    RAM16K(in=in, load=memload, address=maddr, out=mout);
+    Screen(in=in, load=screenload, address=saddr, out=sout);
+    Keyboard(out=kout);
+
+    Mux8Way16(a[0..15]=false, b[0..15]=false, c[0..15]=false, d[0..15]=false,
+              e=kout, f[0..15]=false, g=sout, h=mout,
+              sel[0]=o3FFF, sel[1]=o5FFF, sel[2]=o6000, out=out);
 }
