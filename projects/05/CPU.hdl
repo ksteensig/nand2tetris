@@ -50,7 +50,8 @@ CHIP CPU {
 
     
     Not(in=ibit, out=writeA1);
-    Or(a=d1, b=writeA1, out=writeA);
+    Or(a=d1, b=writeA1, out=writeA2);
+    Mux(a=writeA2, b=false, sel=reset, out=writeA);
 
     Mux16(a=instruction, b=mout, sel=ibit, out=mux1);
     ARegister(in=mux1, load=writeA, out=aout);
