@@ -4,7 +4,7 @@
 - [x] Project 3: Sequential Logic
 - [x] Project 4: Machine Language
 - [x] Project 5: Computer Architecture
-- [ ] Project 6: [Assembler: WIP](https://github.com/ksteensig/hs-hack)
+- [x] Project 6: [Assembler](https://github.com/ksteensig/hs-hack)
 - [ ] Project 7: VM I: Stack Arithmetic
 - [ ] Project 8: VM II: Program Control
 - [ ] Project 9: High-Level Language
